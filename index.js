@@ -22,28 +22,32 @@ const client = new MongoClient(uri, {
 
 async function run() {
   try {
-    const databaseName = client.db("BrandShop");
-    const dataCollection = databaseName.collection("BrandCollection");
-    console.log(databaseName, dataCollection)
 
-    const results = await dataCollection.find({}).toArray();
-    console.log(results);
-
-    await client.connect();
-
-    app.get('/', (req, res) => {
+    //brand name data get and show
+    const dataCollection = client.db("BrandShop").collection("BrandCollection");
+    const results = await dataCollection.find().toArray();
+    console.log(results)
+    app.get('/', async (req, res) => {
       res.send(results)
     })
+
+    // get product data and show
+    const productCollection = client.db("AllProduct").collection("AllProductCollection");
+    const cursorResults = await productCollection.find().toArray()
+    console.log(cursorResults);
+
+    app.get('/:brandName/products', async (req, res) => {
+      res.send(cursorResults)
+    })
+
+
+    await client.connect();
 
   }
   finally {
   }
 }
 run().catch(console.dir);
-
-
-
-
 
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`)
