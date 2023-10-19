@@ -31,14 +31,27 @@ async function run() {
       res.send(results)
     })
 
-    // get product data and show
+    // send new added product to  database
     const productCollection = client.db("AllProduct").collection("AllProductCollection");
-    const cursorResults = await productCollection.find().toArray()
-    console.log(cursorResults);
 
-    app.get('/:brandName/products', async (req, res) => {
-      res.send(cursorResults)
+
+    app.post('/products', async (req, res) => {
+      const newProduct = req.body
+      console.log(newProduct)
+      // res.send(newProduct)
+      const result = await productCollection.insertOne(newProduct);
+      res.send(result)
     })
+
+    // get product data and show
+
+    // app.get('/products', async (req, res) => {
+    //   const brandName = req.params.brandName
+    //   const cursorResults = await productCollection.find().toArray()
+
+    //   console.log(cursorResults);
+    //   res.send(cursorResults)
+    // })
 
 
     await client.connect();
