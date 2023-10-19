@@ -2,7 +2,7 @@ const { MongoClient, ServerApiVersion } = require('mongodb');
 const express = require('express')
 const app = express()
 const cors = require('cors')
-const port = process.env.port||5000
+const port = process.env.port || 5000
 require('dotenv').config()
 
 app.use(cors())
@@ -25,21 +25,25 @@ async function run() {
     const databaseName = client.db("BrandShop");
     const dataCollection = databaseName.collection("BrandCollection");
     console.log(databaseName, dataCollection)
-    
 
-     const results = await dataCollection.find({}).toArray();
-     console.log(results);
- 
+    const results = await dataCollection.find({}).toArray();
+    console.log(results);
+
     await client.connect();
-  } finally {
+
+    app.get('/', (req, res) => {
+      res.send(results)
+    })
+
+  }
+  finally {
   }
 }
 run().catch(console.dir);
 
 
-app.get('/', (req, res) => {
-  res.send('Hello World!')
-})
+
+
 
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`)
