@@ -26,7 +26,7 @@ async function run() {
     //brand name data get and show
     const dataCollection = client.db("BrandShop").collection("BrandCollection");
     const results = await dataCollection.find().toArray();
-    console.log(results)
+    
     app.get('/', async (req, res) => {
       res.send(results)
     })
@@ -38,20 +38,14 @@ async function run() {
     app.post('/products', async (req, res) => {
       const newProduct = req.body
       console.log(newProduct)
-      // res.send(newProduct)
       const result = await productCollection.insertOne(newProduct);
       res.send(result)
     })
 
-    // get product data and show
-
-    // app.get('/products', async (req, res) => {
-    //   const brandName = req.params.brandName
-    //   const cursorResults = await productCollection.find().toArray()
-
-    //   console.log(cursorResults);
-    //   res.send(cursorResults)
-    // })
+    app.get('/products', async (req, res) => {
+      const findProduct = await productCollection.find().toArray();
+      res.send(findProduct)
+    })
 
 
     await client.connect();
