@@ -5,14 +5,9 @@ const cors = require('cors')
 const port = process.env.port||5000
 require('dotenv').config()
 
-// 6Ed2bHhqBp2C885z
-//shanzidadisha1234
-
 app.use(cors())
 app.use(express.json())
 
-console.log(process.env.DB_PASS)
-console.log(process.env.DB_USER)
 
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.o3rqjw9.mongodb.net/?retryWrites=true&w=majority`;
 
@@ -27,14 +22,16 @@ const client = new MongoClient(uri, {
 
 async function run() {
   try {
-    // Connect the client to the server	(optional starting in v4.7)
+    const databaseName = client.db("BrandShop");
+    const dataCollection = databaseName.collection("BrandCollection");
+    console.log(databaseName, dataCollection)
+    
+
+     const results = await dataCollection.find({}).toArray();
+     console.log(results);
+ 
     await client.connect();
-    // Send a ping to confirm a successful connection
-    await client.db("admin").command({ ping: 1 });
-    console.log("Pinged your deployment. You successfully connected to MongoDB!");
   } finally {
-    // Ensures that the client will close when you finish/error
-    await client.close();
   }
 }
 run().catch(console.dir);
