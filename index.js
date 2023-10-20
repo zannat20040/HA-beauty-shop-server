@@ -2,7 +2,7 @@ const express = require('express');
 const app = express();
 const cors = require('cors');
 require('dotenv').config()
-const { MongoClient, ServerApiVersion,ObjectId } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 // var  = require('mongodb').ObjectID;
 const port = process.env.PORT || 5000
 app.use(cors())
@@ -48,12 +48,35 @@ async function run() {
     })
 
     // update functionality
-    app.get('/products', async (req, res) => {
-      // const id = req.params.id;
-      const findProduct = req.body
-      const result = await cartCollection.findOne({ _id: findProduct._id });
+    app.get('/products/:id', async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) }
+      const result = await productCollection.findOne(query);
       res.send(result);
-  })
+    })
+
+
+    app.put('/products/:id', async (req, res) => {
+      const id = req.params.id;
+      const filter = { _id: new ObjectId(id) }
+      const options = { upsert: true };
+      const updatedProductDetails = req.body;
+  
+      const updatedProduct = {
+          $set: {
+              type : updatedProductDetails.type ,
+              rating: updatedProductDetails.rating,
+              productName : updatedProductDetails.productName ,
+              price: updatedProductDetails.price,
+              image: updatedProductDetails.image,
+              brandName: updatedProductDetails.brandName,
+              description: updatedProductDetails.description
+          }
+      }
+      const result = await productCollection.updateOne(filter, updatedProduct, options);
+            res.send(result);
+    }
+    )
 
     // get new slider img from  database
     app.get('/slider', async (req, res) => {
