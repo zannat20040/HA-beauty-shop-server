@@ -2,8 +2,9 @@ const express = require('express');
 const app = express();
 const cors = require('cors');
 require('dotenv').config()
-const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
-const port= process.env.PORT || 5000
+const { MongoClient, ServerApiVersion,ObjectId } = require('mongodb');
+// var  = require('mongodb').ObjectID;
+const port = process.env.PORT || 5000
 app.use(cors())
 app.use(express.json())
 
@@ -37,7 +38,6 @@ async function run() {
 
     app.post('/products', async (req, res) => {
       const newProduct = req.body
-      console.log(newProduct)
       const result = await productCollection.insertOne(newProduct);
       res.send(result)
     })
@@ -47,35 +47,50 @@ async function run() {
       res.send(findProduct)
     })
 
-        // get new slider img from  database
-        app.get('/slider', async (req, res) => {
-          const getSliderImage = await sliderCollection.find().toArray();
-          console.log(getSliderImage)
-          res.send(getSliderImage)
-        })
+    // update functionality
+    app.get('/products', async (req, res) => {
+      // const id = req.params.id;
+      const findProduct = req.body
+      const result = await cartCollection.findOne({ _id: findProduct._id });
+      res.send(result);
+  })
 
-        // database for add to cart
+    // get new slider img from  database
+    app.get('/slider', async (req, res) => {
+      const getSliderImage = await sliderCollection.find().toArray();
+      res.send(getSliderImage)
+    })
 
-        app.post('/cart', async (req, res) => {
-          const myCart = req.body
-          console.log(myCart)
-          const existingProduct = await cartCollection.findOne({ _id: myCart._id });
+    // database for add to cart
+    app.post('/cart', async (req, res) => {
+      const myCart = req.body
+      const existingProduct = await cartCollection.findOne({ _id: myCart._id });
 
-          if(existingProduct){
-            res.status(400).json({ message: 'You have already added this product into My Cart' });
-          }
-          else{
-            const result = await cartCollection.insertOne(myCart);
-          res.send(result)
-          }
-          
-        })
+      if (existingProduct) {
+        res.status(400).json({ message: 'You have already added this product into My Cart' });
+      }
+      else {
+        const result = await cartCollection.insertOne(myCart);
+        res.send(result)
+      }
 
-        app.get('/cart', async (req, res) => {
-          const cartProduct = await cartCollection.find().toArray();
-          res.send(cartProduct)
-        })
-        
+    })
+
+    app.get('/cart', async (req, res) => {
+      const cartProduct = await cartCollection.find().toArray();
+      res.send(cartProduct)
+    })
+
+    // delete functionality
+    app.delete('/cart/:id', async (req, res) => {
+      const id = req.params.id
+      const query = { _id: id }
+      const remove = await cartCollection.deleteOne(query);
+      res.send(remove)
+    })
+
+
+
 
   }
   finally {
