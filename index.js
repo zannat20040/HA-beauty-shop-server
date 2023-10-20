@@ -1,10 +1,9 @@
-const { MongoClient, ServerApiVersion } = require('mongodb');
-const express = require('express')
-const app = express()
-const cors = require('cors')
-const port = process.env.port || 5000
+const express = require('express');
+const app = express();
+const cors = require('cors');
 require('dotenv').config()
-
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
+const port= process.env.PORT || 5000
 app.use(cors())
 app.use(express.json())
 
@@ -26,14 +25,15 @@ async function run() {
     //brand name data get and show
     const dataCollection = client.db("BrandShop").collection("BrandCollection");
     const results = await dataCollection.find().toArray();
-    
+    const cartCollection = client.db("AddedProduct").collection("AddedCartCollection");
+    const productCollection = client.db("AllProduct").collection("AllProductCollection");
+    const sliderCollection = client.db("BrandSlider").collection("SliderCollection");
+
     app.get('/', async (req, res) => {
       res.send(results)
     })
 
     // send new added product to  database
-    const productCollection = client.db("AllProduct").collection("AllProductCollection");
-
 
     app.post('/products', async (req, res) => {
       const newProduct = req.body
@@ -47,8 +47,35 @@ async function run() {
       res.send(findProduct)
     })
 
+        // get new slider img from  database
+        app.get('/slider', async (req, res) => {
+          const getSliderImage = await sliderCollection.find().toArray();
+          console.log(getSliderImage)
+          res.send(getSliderImage)
+        })
 
-    await client.connect();
+        // database for add to cart
+
+        app.post('/cart', async (req, res) => {
+          const myCart = req.body
+          console.log(myCart)
+          const existingProduct = await cartCollection.findOne({ _id: myCart._id });
+
+          if(existingProduct){
+            res.status(400).json({ message: 'You have already added this product into My Cart' });
+          }
+          else{
+            const result = await cartCollection.insertOne(myCart);
+          res.send(result)
+          }
+          
+        })
+
+        app.get('/cart', async (req, res) => {
+          const cartProduct = await cartCollection.find().toArray();
+          res.send(cartProduct)
+        })
+        
 
   }
   finally {
@@ -59,3 +86,4 @@ run().catch(console.dir);
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`)
 })
+
