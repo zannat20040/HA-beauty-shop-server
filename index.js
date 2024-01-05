@@ -25,12 +25,12 @@ async function run() {
 
     //brand name data get and show
     const dataCollection = client.db("BrandShop").collection("BrandCollection");
-    const results = await dataCollection.find().toArray();
     const cartCollection = client.db("AddedProduct").collection("AddedCartCollection");
     const productCollection = client.db("AllProduct").collection("AllProductCollection");
     const sliderCollection = client.db("BrandSlider").collection("SliderCollection");
 
     app.get('/', async (req, res) => {
+      const results = await dataCollection.find().toArray();
       res.send(results)
     })
 
